@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<!-- Required meta tags -->
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+		<!-- Bootstrap CSS -->
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+			integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+			crossorigin="anonymous"
+		/>
+
+		<title>Star wars wiki</title>
+
+		<style>
+			.next-page,
+			.previous-page,
+			.retrieve-all {
+				display: none;
+			}
+
+			.result-section {
+				text-align: center;
+			}
+		</style>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+		<script
+			src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"
+			integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns"
+			crossorigin="anonymous"
+		></script>
+
+		<script>
+			$(document).ready(function () {
+				$(".people").click(function () {
+					$(this).removeClass("btn-primary");
+					$(this).addClass("btn-danger");
+					$(".planets").removeClass("btn-danger");
+					$(".planets").addClass("btn-primary");
+
+					$(".result-section").html(`<img src='/img/loading.gif'>`);
+					$.get(
+						`/people/`,
+						function (res) {
+							console.log(res);
+
+							let data = ``;
+							for (let i = 0; i < res.results.length; i++) {
+								data += `<p>${res.results[i].name}</p>`;
+							}
+
+							$(".result-section").css({ "background-color": "#eee", padding: "1rem", margin: "1rem" });
+
+							$(".result-section").html(data);
+							$(".next-url").val(res.next);
+							$(".retrieve-all").attr("data-list", "people");
+
+							$(".next-page, .previous-page, .retrieve-all").css("display", "block");
+							$(".previous-page button").attr("disabled", true);
+						},
+						"json"
+					);
+				});
+
+				$(".planets").click(function () {
+					$(this).removeClass("btn-primary");
+					$(this).addClass("btn-danger");
+					$(".people").removeClass("btn-danger");
+					$(".people").addClass("btn-primary");
+					$(".result-section").html(`<img src='/img/loading.gif'>`);
+					$.get(
+						`/planets`,
+						function (res) {
+							console.log(res);
+
+							let data = ``;
+							for (let i = 0; i < res.results.length; i++) {
+								data += `<p>${res.results[i].name}</p>`;
+							}
+
+							$(".result-section").css({ "background-color": "#eee", padding: "1rem", margin: "1rem" });
+
+							$(".result-section").html(data);
+
+							$(".next-url").val(res.next);
+
+							$(".retrieve-all").attr("data-list", "planets");
+
+							$(".next-page, .previous-page, .retrieve-all").css("display", "block");
+							$(".previous-page button").attr("disabled", true);
+						},
+						"json"
+					);
+				});
+
+				$(".next-page").submit(function (e) {
+					$(".result-section").html(`<img src='/img/loading.gif'>`);
+					$.post(
+						`/next`,
+						$(".next-page").serialize(),
+						function (res) {
+							console.log(res);
+
+							let data = ``;
+							for (let i = 0; i < res.results.length; i++) {
+								data += `<p>${res.results[i].name}</p>`;
+							}
+
+							$(".result-section").html(data);
+							$(".next-url").val(res.next);
+							$(".previous-url").val(res.previous);
+							$(".previous-page button").attr("disabled", false);
+
+							if ($(".next-url").val() === "") {
+								$(".next-page button").attr("disabled", true);
+							}
+						},
+						"json"
+					);
+
+					return false;
+				});
+
+				$(".previous-page").submit(function (e) {
+					$(".result-section").html(`<img src='/img/loading.gif'>`);
+					$.post(
+						`/previous`,
+						$(".previous-page").serialize(),
+						function (res) {
+							console.log(res);
+
+							let data = ``;
+							for (let i = 0; i < res.results.length; i++) {
+								data += `<p>${res.results[i].name}</p>`;
+							}
+
+							$(".result-section").html(data);
+							$(".next-url").val(res.next);
+							$(".previous-url").val(res.previous);
+
+							if ($(".previous-url").val() === "") {
+								$(".previous-page button").attr("disabled", true);
+							}
+
+							if ($(".next-url").val() !== "") {
+								$(".next-page button").attr("disabled", false);
+							}
+						},
+						"json"
+					);
+
+					return false;
+				});
+
+				$(".retrieve-all").click(function (e) {
+					let data = ``;
+					let counter = 60;
+
+					$(".result-section").html(`<img src='/img/loading.gif'>`);
+					for (let i = 1; i <= counter; i++) {
+						$.get(
+							`https://swapi.dev/api/${$(".retrieve-all").attr("data-list")}/${i}`,
+
+							function (res) {
+								console.log(res);
+
+								data += `<p>${res.name}</p>`;
+								$(".result-section").html(data);
+							},
+							"json"
+						);
+					}
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<nav class="navbar navbar-dark bg-primary">
+			<span class="navbar-brand mb-0 h1">Star Wars Wiki</span>
+		</nav>
+
+		<div class="container mt-5">
+			<div class="row">
+				<div class="col-md-12 d-flex justify-content-around">
+					<button type="button" class="people btn btn-primary">People</button>
+					<button type="button" class="planets btn btn-primary">Planets</button>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-12">
+					<div class="result-section"></div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-12 d-flex justify-content-around">
+					<form action="/previous" class="previous-page" method="POST">
+						<input type="hidden" name="previous" class="previous-url" />
+						<button type="submit" class="btn btn-primary">Previous 10</button>
+					</form>
+
+					<button type="button" data-list="" class="btn btn-primary retrieve-all">Get all data</button>
+
+					<form action="/next" class="next-page" method="POST">
+						<input type="hidden" name="next" class="next-url" />
+						<button type="submit" class="btn btn-primary">Next 10</button>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<!-- Optional JavaScript; choose one of the two! -->
+
+		<!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) -->
+	</body>
+</html>

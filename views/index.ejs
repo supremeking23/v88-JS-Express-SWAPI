@@ -57,6 +57,7 @@
 							$(".result-section").html(data);
 							$(".next-url").val(res.next);
 							$(".retrieve-all").attr("data-list", "people");
+							$(".retrieve-all").attr("data-count", res.count);
 
 							$(".next-page, .previous-page, .retrieve-all").css("display", "block");
 							$(".previous-page button").attr("disabled", true);
@@ -88,6 +89,7 @@
 							$(".next-url").val(res.next);
 
 							$(".retrieve-all").attr("data-list", "planets");
+							$(".retrieve-all").attr("data-count", res.count);
 
 							$(".next-page, .previous-page, .retrieve-all").css("display", "block");
 							$(".previous-page button").attr("disabled", true);
@@ -157,7 +159,7 @@
 
 				$(".retrieve-all").click(function (e) {
 					let data = ``;
-					let counter = 60;
+					let counter = $(".retrieve-all").attr("data-count");
 
 					$(".result-section").html(`<img src='/img/loading.gif'>`);
 					for (let i = 1; i <= counter; i++) {
@@ -203,7 +205,7 @@
 						<button type="submit" class="btn btn-primary">Previous 10</button>
 					</form>
 
-					<button type="button" data-list="" class="btn btn-primary retrieve-all">Get all data</button>
+					<button type="button" data-list="" data-count="" class="btn btn-primary retrieve-all">Get all data</button>
 
 					<form action="/next" class="next-page" method="POST">
 						<input type="hidden" name="next" class="next-url" />
